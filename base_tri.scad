@@ -8,19 +8,31 @@ tri_height = 3;
 offset_radius = -0.6;
 fillet = 0.2;
 
-module base_tri() {
+module triangle() {
     polygon([[0, 0], [tri_len, 0], [tri_len, tri_height]]);
 }
 
-difference() {
-    base_tri();
-    minkowski() {
-        offset(r=offset_radius) base_tri();
-        circle(fillet);
+module hollowed() {
+    difference() {
+        triangle();
+        minkowski() {
+            offset(r=offset_radius) triangle();
+            circle(fillet);
+        }
     }
 }
 
-for (i = [0 : 4]) {
-    translate([i, -thickness])
-        square([0.5, thickness]);
+module base_tri() {
+    difference() {
+        union() {
+            hollowed();
+            for (i = [0 : 4]) {
+                translate([i, -thickness])
+                    square([tri_len/(5*2), thickness]);
+            }
+        }
+        translate([0, -1]) square([1, 2]);
+    }
 }
+
+base_tri();
